@@ -1,13 +1,26 @@
+#importeer de benodigde modules om de code te laten werken
 import simpleaudio as sa
 import time
 import random
 
-samples = [sa.WaveObject.from_wave_file("snare.wav"), sa.WaveObject.from_wave_file("hat.wav"),sa.WaveObject.from_wave_file("tom.wav") ]
 #de samples worden gedefinieerd: sample snare is 0, sample hat is 1, sample tom is 2
+samples = [sa.WaveObject.from_wave_file("snare.wav"), sa.WaveObject.from_wave_file("hat.wav"),sa.WaveObject.from_wave_file("tom.wav") ]
 
 #we vragen welke maatsoort en welk bpm er gebruikt moet worden, en die worden gedefinieerd
 print("wil je maatsoort 3/4 of 5/4?")
 rythmChoice = input()
+
+if rythmChoice != ("3/4" or "5/4"):
+    print("haha nee")
+    print("wil je nou maatsoort 3/4 of 5/4? andere mogelijkheden zijn er niet.")
+    rythmChoice = input()
+    if rythmChoice != ("3/4" or "5/4"):
+        print("HOE DAN? LAATSTE KANS:")
+        print("wil je nou maatsoort 3/4 of 5/4? andere mogelijkheden zijn er niet.")
+        rythmChoice = input()
+        if rythmChoice != ("3/4" or "5/4"):
+            print("je kan niks doeg.")
+            exit()
 
 print("welk bpm wil je?")
 bpm = int(input())
@@ -15,26 +28,74 @@ bpm = int(input())
 print("je hebt gekozen voor het bpm", bpm, "en de maatsoort", rythmChoice)
 
 # calculate the duration of a quarter note
-quarterNoteDuration = 60 / bpm
+quarterNoteDuration = 60 / int(bpm)
 # calculate the duration of a sixteenth note
 sixteenthNoteDuration = quarterNoteDuration / 4.0
 
-# create a list to hold the timestamps
-timestamps = [0.25, 0.5, 0.25, 0.5, 0.5, 1, 1]
+timestamps = []
 
-print(timestamps)
+# create a list to hold the rhythm sequence
+rythmList = []
+print(rythmList)
+
 #nu maken we een functie die de durations omzet naar timestamps16th
-lijst2 = [0]
+timestamps16th = [0]
+
+noteValues = [0.25, 0.5, 1.0]
 
 item = 0
 
-for duration in timestamps:
+#3/4 lijst aanmaken
+if rythmChoice == '3/4':
+    while sum(rythmList) <= 2:
+        rythmList.append(random.choice(noteValues))
+
+    if sum(rythmList) == 2:
+        rythmList.append(1)
+
+    if sum(rythmList) == 2.25:
+        rythmList.append(0.75)
+
+    if sum(rythmList) == 2.5:
+        rythmList.append(0.5)
+
+    if sum(rythmList) == 2.75:
+        rythmList.append(0.25)
+
+#5/4 lijst aanmaken
+if rythmChoice == '5/4':
+    while sum(rythmList) <= 4:
+        rythmList.append(random.choice(noteValues))
+
+    if sum(rythmList) == 4:
+        rythmList.append(1)
+
+    if sum(rythmList) == 4.25:
+        rythmList.append(0.75)
+
+    if sum(rythmList) == 4.5:
+        rythmList.append(0.5)
+
+    if sum(rythmList) == 4.75:
+        rythmList.append(0.25)
+
+
+print("Timestamps opgeteld:", sum(rythmList))
+
+print("ritmesequence:", rythmList)
+
+for duration in rythmList:
     timestamp = duration * 4
-    final = lijst2[item] + timestamp
-    lijst2.append(final)
+    final = timestamps16th[item] + timestamp
+    timestamps16th.append(final)
     item = item + 1
 
-print(lijst2)
+print("timestamps16th:", timestamps16th)
+
+#nu zetten we de originele timestamps om in de timestamps op basis van het bpm
+for timestamp in timestamps16th:
+  timestamps.append(timestamp * sixteenthNoteDuration)
+print("bpm-timestamp lijst:", timestamps)
 
 #nu maken we de samplelijst
 sampleList = []
@@ -42,10 +103,40 @@ sampleList = []
 for timestamp in timestamps:
     sampleList.append(random.randrange(0, 3, 1))
 
-print(sampleList)
+print("samplelijst:", sampleList)
 
 #nu gaan we de samplelijst afspelen
 
-for x in sampleList:
-    samples[x].play()
-    time.sleep(0.1)
+#NOTE: pop(0) returns and removes the element at index 0
+timestamp = timestamps.pop(0)
+# retrieve the startime: current time
+startTime = time.time()
+keepPlaying = True
+# play the sequence
+
+while keepPlaying:
+  # retrieve current time
+  currentTime = time.time()
+  # check if the timestamp's time is passed
+  if(currentTime - startTime >= timestamp):
+    # play sample
+    samples[sampleList[0]].play()
+    sampleList.pop(0)
+    # if there are timestamps left in the timestamps list
+    if timestamps:
+      # retrieve the next timestamp
+      timestamp = timestamps.pop(0)
+    else:
+      # list is empty, stop loop
+      keepPlaying = False
+  else:
+    # wait for a very short moment
+    time.sleep(0.001)
+
+while True:
+  answer = input('Do you want to continue? (yes/no):')
+  if answer.lower().startswith("y"):
+      print("..generating new rhythm..")
+  elif answer.lower().startswith("n"):
+      print("ok, bye")
+      exit()
