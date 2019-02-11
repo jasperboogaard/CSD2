@@ -1,7 +1,7 @@
 #importeer de benodigde modules om de code te laten werken
 import simpleaudio as sa
 import time
-import random
+import randoms
 
 #de samples worden gedefinieerd: sample snare is 0, sample hat is 1, sample tom is 2
 samples = [sa.WaveObject.from_wave_file("snare.wav"), sa.WaveObject.from_wave_file("hat.wav"),sa.WaveObject.from_wave_file("tom.wav") ]
