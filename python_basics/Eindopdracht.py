@@ -24,6 +24,8 @@ if rythmChoice != ("3/4" or "5/4"):
            
 bpm = hond;
 
+bpm = muis            
+            
 print("welk bpm wil je?")
 bpm = int(input())
 
